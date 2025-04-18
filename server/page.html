@@ -1,0 +1,704 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Productivity Social{% endblock %}</title>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --success-color: #4caf50;
+            --danger-color: #f44336;
+            --warning-color: #ff9800;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --gray-color: #6c757d;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        .navbar-links {
+            display: flex;
+            gap: 20px;
+        }
+        .navbar-links a {
+            color: var(--dark-color);
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .navbar-links a:hover {
+            background-color: #eee;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+        .flash-messages {
+            list-style: none;
+            padding: 0;
+        }
+        .flash-message {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        input[type="text"], input[type="email"], input[type="password"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        button, .btn {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+        button:hover, .btn:hover {
+            background-color: var(--secondary-color);
+        }
+        .btn-success {
+            background-color: var(--success-color);
+        }
+        .btn-success:hover {
+            background-color: #388e3c;
+        }
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+        .btn-danger:hover {
+            background-color: #d32f2f;
+        }
+        .productive {
+            color: var(--success-color);
+        }
+        .non-productive {
+            color: var(--danger-color);
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .stats-box {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+        }
+        .stats-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .leaderboard-rank {
+            font-weight: bold;
+            width: 50px;
+        }
+        .achievement {
+            border-left: 4px solid var(--primary-color);
+            padding-left: 10px;
+        }
+        .post {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .post-username {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        .post-date {
+            color: var(--gray-color);
+            font-size: 0.9rem;
+        }
+        .app-usage {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .app-usage.productive {
+            background-color: rgba(76, 175, 80, 0.1);
+        }
+        .app-usage.non-productive {
+            background-color: rgba(244, 67, 54, 0.1);
+        }
+        .progress-container {
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 10px;
+        }
+        .progress-bar.productive {
+            background-color: var(--success-color);
+        }
+        .progress-bar.non-productive {
+            background-color: var(--danger-color);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{{ url_for('index') }}" class="navbar-brand">ProductivitySocial</a>
+        <div class="navbar-links">
+            {% if 'user_id' in session %}
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('track_app_usage') }}">Track Usage</a>
+                <a href="{{ url_for('social_feed') }}">Social Feed</a>
+                <a href="{{ url_for('leaderboard') }}">Leaderboard</a>
+                <a href="{{ url_for('profile', username=session['username']) }}">Profile</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Login</a>
+                <a href="{{ url_for('register') }}">Register</a>
+                <a href="{{ url_for('leaderboard') }}">Leaderboard</a>
+            {% endif %}
+        </div>
+    </nav>
+    
+    {% if get_flashed_messages() %}
+        <ul class="flash-messages">
+            {% for message in get_flashed_messages() %}
+                <li class="flash-message">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
+
+<!-- templates/index.html -->
+{% extends 'base.html' %}
+
+{% block title %}ProductivitySocial - Balance Life & Work{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Welcome to ProductivitySocial</h1>
+        <p>The social network that helps you become more productive!</p>
+        
+        <div class="dashboard-grid">
+            <div class="card">
+                <h2>Track Your App Usage</h2>
+                <p>Monitor your time spent on productive and non-productive applications.</p>
+                <p>Earn points for productive work and see how you compare to others!</p>
+            </div>
+            
+            <div class="card">
+                <h2>Connect with Friends</h2>
+                <p>Share your productivity journey with like-minded individuals.</p>
+                <p>Get inspired by what others are achieving and stay motivated!</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>How It Works</h2>
+            <ol>
+                <li>Track time spent on different applications</li>
+                <li>Earn points for productive work (and lose points for distractions)</li>
+                <li>Unlock achievements as you develop better habits</li>
+                <li>Climb the leaderboard and gain recognition</li>
+                <li>Share your progress and connect with others</li>
+            </ol>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                {% if 'user_id' not in session %}
+                    <a href="{{ url_for('register') }}" class="btn">Get Started</a>
+                {% else %}
+                    <a href="{{ url_for('dashboard') }}" class="btn">Go to Dashboard</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+<!-- templates/register.html -->
+{% extends 'base.html' %}
+
+{% block title %}Register - ProductivitySocial{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Register</h1>
+        <p>Create an account to start tracking your productivity!</p>
+        
+        <form method="POST" action="{{ url_for('register') }}">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password:</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+            </div>
+            
+            <button type="submit">Register</button>
+        </form>
+        
+        <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a>.</p>
+    </div>
+{% endblock %}
+
+<!-- templates/login.html -->
+{% extends 'base.html' %}
+
+{% block title %}Login - ProductivitySocial{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Login</h1>
+        <p>Welcome back! Please login to continue.</p>
+        
+        <form method="POST" action="{{ url_for('login') }}">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit">Login</button>
+        </form>
+        
+        <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a>.</p>
+    </div>
+{% endblock %}
+
+<!-- templates/dashboard.html -->
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - ProductivitySocial{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Welcome to Your Dashboard, {{ user.username }}!</h1>
+        <p>Current productivity score: <strong>{{ user.total_points }}</strong> points</p>
+        
+        <div class="dashboard-grid">
+            <div class="card">
+                <h2>Productivity Overview</h2>
+                
+                <div class="stats-box">
+                    <p>Productive Time</p>
+                    <div class="stats-value productive">{{ (productive_time / 60)|round(1) }} hours</div>
+                </div>
+                
+                <div class="stats-box">
+                    <p>Non-Productive Time</p>
+                    <div class="stats-value non-productive">{{ (non_productive_time / 60)|round(1) }} hours</div>
+                </div>
+                
+                <h3>Productivity Ratio</h3>
+                <div class="progress-container">
+                    {% set total_time = productive_time + non_productive_time %}
+                    {% if total_time > 0 %}
+                        {% set productive_percentage = (productive_time / total_time * 100)|round %}
+                    {% else %}
+                        {% set productive_percentage = 0 %}
+                    {% endif %}
+                    
+                    <div class="progress-bar productive" style="width: {{ productive_percentage }}%"></div>
+                </div>
+                <p>{{ productive_percentage }}% productive</p>
+            </div>
+            
+            <div class="card">
+                <h2>Recent App Usage</h2>
+                
+                {% if usage_data %}
+                    {% for usage in usage_data %}
+                        <div class="app-usage {% if usage.is_productive %}productive{% else %}non-productive{% endif %}">
+                            <strong>{{ usage.app_name }}</strong>
+                            <div>{{ usage.start_time.strftime('%Y-%m-%d %H:%M') }} - {{ usage.duration }} minutes</div>
+                            <div>Points: {% if usage.points >= 0 %}+{% endif %}{{ usage.points }}</div>
+                        </div>
+                    {% endfor %}
+                    
+                    <p><a href="{{ url_for('track_app_usage') }}">Track more app usage</a></p>
+                {% else %}
+                    <p>No recent app usage. <a href="{{ url_for('track_app_usage') }}">Start tracking</a>!</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Your Achievements</h2>
+            
+            {% if achievements %}
+                {% for achievement in achievements %}
+                    <div class="achievement">
+                        <h3>{{ achievement.name }}</h3>
+                        <p>{{ achievement.description }}</p>
+                        <small>Earned on: {{ achievement.earned_date.strftime('%Y-%m-%d') }}</small>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No achievements yet. Keep being productive to unlock them!</p>
+            {% endif %}
+        </div>
+        
+        <div class="card">
+            <h2>Share an Update</h2>
+            
+            <form method="POST" action="{{ url_for('create_post') }}">
+                <div class="form-group">
+                    <textarea name="content" rows="3" placeholder="What's on your mind about productivity?" required></textarea>
+                </div>
+                
+                <button type="submit">Post Update</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+<!-- templates/track_app_usage.html -->
+{% extends 'base.html' %}
+
+{% block title %}Track App Usage - ProductivitySocial{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Track Your App Usage</h1>
+        <p>Log the time you spent on various applications to earn productivity points!</p>
+        
+        <form method="POST" action="{{ url_for('track_app_usage') }}">
+            <div class="form-group">
+                <label for="app_id">Application:</label>
+                <select id="app_id" name="app_id" required>
+                    <option value="">Select an application</option>
+                    
+                    <optgroup label="Productive Apps">
+                        {% for app in applications %}
+                            {% if app.is_productive %}
+                                <option value="{{ app.id }}">{{ app.name }} ({{ app.category }}) - {{ app.points_per_hour }}/hour</option>
+                            {% endif %}
+                        {% endfor %}
+                    </optgroup>
+                    
+                    <optgroup label="Non-Productive Apps">
+                        {% for app in applications %}
+                            {% if not app.is_productive %}
+                                <option value="{{ app.id }}">{{ app.name }} ({{ app.category }}) - {{ app.points_per_hour }}/hour</option>
+                            {% endif %}
+                        {% endfor %}
+                    </optgroup>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="start_time">Start Time:</label>
+                <input type="datetime-local" id="start_time" name="start_time" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="duration">Duration (minutes):</label>
+                <input type="number" id="duration" name="duration" min="1" max="1440" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="notes">Notes (optional):</label>
+                <textarea id="notes" name="notes" rows="3"></textarea>
+            </div>
+            
+            <button type="submit">Log App Usage</button>
+        </form>
+    </div>
+{% endblock %}
+
+<!-- templates/leaderboard.html -->
+{% extends 'base.html' %}
+
+{% block title %}Leaderboard - ProductivitySocial{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Productivity Leaderboard</h1>
+        <p>See how you rank against other users based on productivity points!</p>
+        
+        {% if user_rank %}
+            <div class="card">
+                <h3>Your Current Rank: #{{ user_rank }}</h3>
+                <p>Keep being productive to climb the leaderboard!</p>
+            </div>
+        {% endif %}
+        
+        <div class="card">
+            <h2>Top Productive Users</h2>
+            
+            {% if users %}
+                {% for user in users %}
+                    <div class="leaderboard-item">
+                        <span class="leaderboard-rank">#{{ loop.index }}</span>
+                        <span class="leaderboard-username">
+                            <a href="{{ url_for('profile', username=user.username) }}">{{ user.username }}</a>
+                        </span>
+                        <span class="leaderboard-points">{{ user.total_points }} points</span>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No users found. Be the first one on the leaderboard!</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+<!-- templates/profile.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ user.username }}'s Profile - ProductivitySocial{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>{{ user.username }}'s Profile</h1>
+        
+        <div class="dashboard-grid">
+            <div class="card">
+                <h2>User Information</h2>
+                <p><strong>Joined:</strong> {{ user.join_date.strftime('%Y-%m-%d') }}</p>
+                <p><strong>Productivity Score:</strong> {{ user.total_points }} points</p>
+                
+                <h3>Bio</h3>
+                <p>{{ user.bio or 'No bio provided yet.' }}</p>
+                
+                {% if session.get('user_id') == user.id %}
+                    <p><a href="{{ url_for('edit_profile') }}" class="btn">Edit Profile</a></p>
+                {% endif %}
+            </div>
+            
+            <div class="card">
+                <h2>Productivity Stats</h2>
+                
+                <div class="stats-box">
+                    <p>Productive Time</p>
+                    <div class="stats-value productive">{{ (productive_time / 60)|round(1) }} hours</div>
+                </div>
+                
+                <div class="stats-box">
+                    <p>Non-Productive Time</p>
+                    <div class="stats-value non-productive">{{ (non_productive_time / 60)|round(1) }} hours</div>
+                </div>
+                
+                <h3>Top Applications</h3>
+                {% for app in usage_data[:5] %}
+                    <div class="app-usage {% if app.is_productive %}productive{% else %}non-productive{% endif %}">
+                        <strong>{{ app.app_name }}</strong>
+                        <div>{{ (app.duration / 60)|round(1) }} hours</div>
+                        <div>Points: {% if app.points >= 0 %}+{% endif %}{{ app.points }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Achievements</h2>
+            
+            {% if achievements %}
+                {% for achievement in achievements %}
+                    <div class="achievement">
+                        <h3>{{ achievement.name }}</h3>
+                        <p>{{ achievement.description }}</p>
+                        <small>Earned on: {{ achievement.earned_date.strftime('%Y-%m-%d') }}</small>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No achievements unlocked yet.</p>
+            {% endif %}
+        </div>
+        
+        <div class="card">
+            <h2>Recent Posts</h2>
+            
+            {% if posts %}
+                {% for post in posts %}
+                    <div class="post">
+                        <div class="post-header">
+                            <span class="post-username">{{ user.username }}</span>
+                            <span class="post-date">{{ post.created_date.strftime('%Y-%m-%d %H:%M') }}</span>
+                        </div>
+                        <div class="post-content">
+                            {{ post.content }}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No posts yet.</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+<!-- templates/edit_profile.html -->
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile - ProductivitySocial{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Edit Your Profile</h1>
+        
+        <form method="POST" action="{{ url_for('edit_profile') }}">
+            <div class="form-group">
+                <label for="bio">Bio:</label>
+                <textarea id="bio" name="bio" rows="5">{{ user.bio }}</textarea>
+            </div>
+            
+            <button type="submit">Save Changes</button>
+            <a href="{{ url_for('profile', username=user.username) }}" class="btn btn-danger" style="margin-left: 10px;">Cancel</a>
+        </form>
+    </div>
+{% endblock %}
+
+<!-- templates/social_feed.html -->
+{% extends 'base.html' %}
+
+{% block title %}Social Feed - ProductivitySocial{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Social Feed</h1>
+        <p>See what other productivity enthusiasts are sharing!</p>
+        
+        <div class="card">
+            <h2>Share an Update</h2>
+            
+            <form method="POST" action="{{ url_for('create_post') }}">
+                <div class="form-group">
+                    <textarea name="content" rows="3" placeholder="What's on your mind about productivity?" required></textarea>
+                </div>
+                
+                <button type="submit">Post Update</button>
+            </form>
+        </div>
+        
+        <div class="card">
+            <h2>Recent Updates</h2>
+            
+            {% if posts %}
+                {% for post in posts %}
+                    <div class="post">
+                        <div class="post-header">
+                            <a href="{{ url_for('profile', username=post.username) }}" class="post-username">{{ post.username }}</a>
+                            <span class="post-date">{{ post.created_date.strftime('%Y-%m-%d %H:%M') }}</span>
+                        </div>
+                        <div class="post-content">
+                            {{ post.content }}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No posts yet. Be the first to share!</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+<!-- templates/view_task.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ task.title }}{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>{{ task.title }}</h1>
+        
+        <p><strong>Created:</strong> {{ task.created_date.strftime('%Y-%m-%d %H:%M') }}</p>
+        <p><strong>Status:</strong> {% if task.completed %}Completed{% else %}Pending{% endif %}</p>
+        
+        <div class="description">
+            <h3>Description:</h3>
+            <p>{{ task.description or 'No description provided.' }}</p>
+        </div>
+        
+        <div class="actions">
+            <a href="{{ url_for('edit_task', id=task.id) }}" class="btn">Edit</a>
+            <a href="{{ url_for('toggle_task', id=task.id) }}" class="btn btn-success">Toggle Status</a>
+            <a href="{{ url_for('delete_task', id=task.id) }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this task?')">Delete</a>
+            <a href="{{ url_for('index') }}" class="btn">Back to List</a>
+        </div>
+    </div>
+{% endblock %}
