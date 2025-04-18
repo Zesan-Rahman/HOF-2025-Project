@@ -1,4 +1,5 @@
 # Prerequisites
+.histfile
 *.d
 
 # Compiled Object files
