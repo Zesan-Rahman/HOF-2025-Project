@@ -21,11 +21,11 @@ conn = pymysql.connect(host='localhost',
 
 def track_app_time():
     global current_window, start_time
-    HOST = "127.0.0.1"  #localhost
-    PORT = SERVERPORT
-    sockfd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sockfd.connect((HOST, PORT))
-
+    # HOST = "127.0.0.1"  #localhost
+    # PORT = SERVERPORT
+    # sockfd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # sockfd.connect((HOST, PORT))
+    cursor = conn.cursor
     while True:
         new_window = gw.getActiveWindow()
 
@@ -42,14 +42,19 @@ def track_app_time():
 
                 else:
                     app_data[app_name] = elapsed_time
-                    insert_query = ''' '''
+                    insert_query = '''
+                    INSERT INTO app_data (app_name, time_spent)
+                    VALUES (%s, CONVERT(%s, UNSIGNED))
+                    ON DUPLICATE KEY UPDATE time_spent = time_spent + CONVERT(%s, UNSIGNED)
+                    '''
+                    cursor.execute(insert_query, (app_name, str(elapsed_time), str(elapsed_time)))
 
                 # Save the data to TrackRecords.txt
                 with open("TrackRecords.txt", "a") as file:
                     current_datetime = time.strftime("%Y-%m-%d %H:%M:%S")
                     file.write(f"{current_datetime} - Time spent on {app_name}: {elapsed_time:.2f} seconds\n")
                     data = f"{app_name}: {elapsed_time:.2f} seconds\n"
-                    sockfd.sendall(data.encode())
+                    # sockfd.sendall(data.encode())
 
             # Update current window and start time
             current_window = new_window
