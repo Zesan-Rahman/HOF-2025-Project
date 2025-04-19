@@ -7,7 +7,7 @@ create table logins(
 create table app_data(
     username VARCHAR(100),
     app_name VARCHAR(100),
-    time_spent INT NOT NULL,
+    time_spent INT NOT NULL DEFAULT 0,
     PRIMARY KEY(app_name),
     FOREIGN KEY(username) references logins(username)
 );
