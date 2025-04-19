@@ -38,8 +38,8 @@ def track_app_time():
 
                 app_data[app_name] = elapsed_time
                 insert_query = '''
-                    INSERT INTO app_data (app_name, time_spent)
-                    VALUES (%s, CONVERT(%s, UNSIGNED))
+                    INSERT INTO app_data (username, app_name, time_spent)
+                    VALUES ('Jane Doe', %s, CONVERT(%s, UNSIGNED))
                     ON DUPLICATE KEY UPDATE time_spent = time_spent + CONVERT(%s, UNSIGNED)
                     '''
                 cursor.execute(insert_query, (app_name, elapsed_time, elapsed_time))
