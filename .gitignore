@@ -1,4 +1,6 @@
 # Logs
+.histfile
+/venv/
 logs
 *.log
 npm-debug.log*
