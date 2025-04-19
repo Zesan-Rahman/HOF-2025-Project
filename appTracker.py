@@ -43,6 +43,7 @@ def track_app_time():
                     ON DUPLICATE KEY UPDATE time_spent = time_spent + CONVERT(%s, UNSIGNED)
                     '''
                 cursor.execute(insert_query, (app_name, elapsed_time, elapsed_time))
+                conn.commit()
 
                 # Save the data to TrackRecords.txt
                 with open("TrackRecords.txt", "a") as file:
