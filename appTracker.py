@@ -36,18 +36,13 @@ def track_app_time():
                 elapsed_time = end_time - start_time
                 app_name = current_window.title
 
-                if app_name in app_data:
-                    app_data[app_name] += elapsed_time
-                    update_query = ''' '''
-
-                else:
-                    app_data[app_name] = elapsed_time
-                    insert_query = '''
+                app_data[app_name] = elapsed_time
+                insert_query = '''
                     INSERT INTO app_data (app_name, time_spent)
                     VALUES (%s, CONVERT(%s, UNSIGNED))
                     ON DUPLICATE KEY UPDATE time_spent = time_spent + CONVERT(%s, UNSIGNED)
                     '''
-                    cursor.execute(insert_query, (app_name, str(elapsed_time), str(elapsed_time)))
+                cursor.execute(insert_query, (app_name, elapsed_time, elapsed_time))
 
                 # Save the data to TrackRecords.txt
                 with open("TrackRecords.txt", "a") as file:
