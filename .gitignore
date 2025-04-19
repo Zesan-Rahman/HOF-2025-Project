@@ -1,4 +1,5 @@
 # Logs
+.vscode
 .histfile
 /venv/
 logs
