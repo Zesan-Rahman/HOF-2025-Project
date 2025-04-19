@@ -1,5 +1,9 @@
 "use client"
 
+// API Call 
+import {RegisterLink, LoginLink} from "@kinde-oss/kinde-auth-nextjs/components";
+
+
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -43,49 +47,17 @@ export default function Login() {
           <CardTitle className="text-2xl">Log in to your account</CardTitle>
           <CardDescription>Welcome back! Continue tracking your productivity</CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="Enter your email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="Enter your password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-              />
-            </div>
-            {error && <p className="text-sm text-red-500">{error}</p>}
-            <div className="flex items-center justify-end">
-              <Link href="/forgot-password" className="text-sm underline underline-offset-4 hover:text-primary">
-                Forgot password?
-              </Link>
-            </div>
-            <Button type="submit" className="w-full">
-              Log in
-            </Button>
-          </form>
+        <CardContent className="text-center justify-center">
+          <Button asChild>
+            <LoginLink>Log In</LoginLink>
+          </Button>
         </CardContent>
         <CardFooter className="flex justify-center">
           <div className="text-center text-sm">
             Don&apos;t have an account?{" "}
-            <Link href="/register" className="underline underline-offset-4 hover:text-primary">
-              Register
-            </Link>
+            <Button asChild>
+              <RegisterLink>Register</RegisterLink>
+            </Button>
           </div>
         </CardFooter>
       </Card>

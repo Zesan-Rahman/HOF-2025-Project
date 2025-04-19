@@ -2,6 +2,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 
+import {RegisterLink} from "@kinde-oss/kinde-auth-nextjs/components";
+
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
@@ -13,9 +15,9 @@ export default function Home() {
           <Link href="/login" className="text-sm font-medium hover:underline underline-offset-4">
             Login
           </Link>
-          <Link href="/register" className="text-sm font-medium hover:underline underline-offset-4">
-            Register
-          </Link>
+          <Button asChild className="text-sm font-medium hover:underline underline-offset-4">
+            <RegisterLink>Register</RegisterLink>
+          </Button>
         </nav>
       </header>
       <main className="flex-1">
@@ -31,9 +33,9 @@ export default function Home() {
                   leaderboard and compete with friends to see who can be the most productive!
                 </p>
                 <div className="flex flex-col gap-2 sm:flex-row">
-                  <Link href="/register">
-                    <Button size="lg">Get Started</Button>
-                  </Link>
+                  <Button asChild>
+                    <RegisterLink>Register</RegisterLink>
+                  </Button>
                   <Link href="/about">
                     <Button variant="outline" size="lg">
                       Learn More
