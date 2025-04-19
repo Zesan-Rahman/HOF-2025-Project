@@ -25,7 +25,7 @@ def track_app_time():
     # PORT = SERVERPORT
     # sockfd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # sockfd.connect((HOST, PORT))
-    cursor = conn.cursor
+    cursor = conn.cursor()
     while True:
         new_window = gw.getActiveWindow()
 
