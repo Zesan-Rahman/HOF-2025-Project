@@ -1,6 +1,7 @@
 # Logs
 .vscode
 .histfile
+.DS_Store
 /venv/
 logs
 *.log
