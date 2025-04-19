@@ -1,6 +1,7 @@
 import time
 import pygetwindow as gw
 import socket
+import pymysql.cursors
 
 
 # Initialize variables
@@ -8,6 +9,15 @@ SERVERPORT = 65432; #SET SERVER PORT NUMBER HERE
 current_window = None
 start_time = None
 app_data = {} #Dictionary that stores app name and amount of time spent on it
+
+# Configure MySQL
+conn = pymysql.connect(host='localhost',
+                       port=3306,
+                       user='root',
+                       password='',
+                       db='time_tracker',
+                       charset='utf8mb4',
+                       cursorclass=pymysql.cursors.DictCursor)
 
 def track_app_time():
     global current_window, start_time
@@ -28,8 +38,11 @@ def track_app_time():
 
                 if app_name in app_data:
                     app_data[app_name] += elapsed_time
+                    update_query = ''' '''
+
                 else:
                     app_data[app_name] = elapsed_time
+                    insert_query = ''' '''
 
                 # Save the data to TrackRecords.txt
                 with open("TrackRecords.txt", "a") as file:
