@@ -25,7 +25,7 @@ def track_app_time():
     # PORT = SERVERPORT
     # sockfd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # sockfd.connect((HOST, PORT))
-    cursor = conn.cursor
+    cursor = conn.cursor()
     while True:
         new_window = gw.getActiveWindow()
 
@@ -36,18 +36,14 @@ def track_app_time():
                 elapsed_time = end_time - start_time
                 app_name = current_window.title
 
-                if app_name in app_data:
-                    app_data[app_name] += elapsed_time
-                    update_query = ''' '''
-
-                else:
-                    app_data[app_name] = elapsed_time
-                    insert_query = '''
-                    INSERT INTO app_data (app_name, time_spent)
-                    VALUES (%s, CONVERT(%s, UNSIGNED))
+                app_data[app_name] = elapsed_time
+                insert_query = '''
+                    INSERT INTO app_data (username, app_name, time_spent)
+                    VALUES ('Jane Doe', %s, CONVERT(%s, UNSIGNED))
                     ON DUPLICATE KEY UPDATE time_spent = time_spent + CONVERT(%s, UNSIGNED)
                     '''
-                    cursor.execute(insert_query, (app_name, str(elapsed_time), str(elapsed_time)))
+                cursor.execute(insert_query, (app_name, elapsed_time, elapsed_time))
+                conn.commit()
 
                 # Save the data to TrackRecords.txt
                 with open("TrackRecords.txt", "a") as file:
